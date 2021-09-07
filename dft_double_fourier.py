@@ -9,26 +9,66 @@ import sys
 
 def setup_input():
 	
-	if len(sys.argv) < 2:
-		print("------> need the vector to draw as an argument <------")
-		exit()
+	# if len(sys.argv) < 2:
+	# 	print("------> need the vector to draw as an argument <------")
+	# 	exit()
+
+	draw = []
+	imp_signal_x = []
+	imp_signal_y = []
 
 	if len(sys.argv) > 2:
 		print("------> only one argument <------")
 		exit()
+	
+	if len(sys.argv) == 2:
 
-	draw = []
+		with open(sys.argv[1]) as f:
+			content = f.read()
 
-	with open(sys.argv[1]) as f:
-		content = f.read()
+		s_content = content.split()
 
-	s_content = content.split()
+		for cont_iter in s_content:
+			draw.extend( [tuple(float(i) for i in cont_iter.strip("()").split(","))] )
 
-	for cont_iter in s_content:
-		draw.extend( [tuple(float(i) for i in cont_iter.strip("()").split(","))] )
 
-	imp_signal_x = []
-	imp_signal_y = []
+	else:
+		pygame.init()
+		screen = pygame.display.set_mode((600, 400))
+		pygame.display.set_caption("Saving draw")
+		clock = pygame.time.Clock()
+
+		loop = True
+		press = False
+		while loop:
+			try:
+				for event in pygame.event.get():
+					if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN):
+						loop = False
+
+				px, py = pygame.mouse.get_pos()
+				if pygame.mouse.get_pressed() == (1, 0, 0):
+					draw.append((px, py))
+
+				if len(draw) > 1:
+					pygame.draw.aalines(screen, (255, 255, 255), 0, draw, 1)
+
+				if event.type == pygame.MOUSEBUTTONUP:
+					press == False
+			
+				pygame.display.update()
+				clock.tick(100)
+
+			except Exception as e:
+				print(e)
+				pygame.quit()
+				exit()
+
+		pygame.quit()
+
+	if len(draw) == 0:
+		print("--------->Something gone wrong with drawing<------------")
+		exit()
 
 	if len(draw) > 2000:
 		i = 0
@@ -39,8 +79,8 @@ def setup_input():
 			i += 1
 	else:
 		for p in draw:
-				imp_signal_x.append(p[0])
-				imp_signal_y.append(p[1])
+			imp_signal_x.append(p[0])
+			imp_signal_y.append(p[1])
 
 	return imp_signal_x, imp_signal_y
 
@@ -115,7 +155,7 @@ while running:
 
 	# Draw path
 	if len(path) > 1:
-		pygame.draw.aalines(screen, (255, 255, 255), 0, path)
+		pygame.draw.aalines(screen, (255,255, 255), 0, path)
 
 	# Draw lines to path
 	pygame.draw.line(screen, (100, 100, 100), vx, v, 1)
